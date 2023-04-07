@@ -13,6 +13,17 @@ app.use(express.json());
 
 app.listen(4000, () => {console.log('Server started on port 4000')})
 
+// include and initialize the rollbar library with your access token
+var Rollbar = require('rollbar')
+var rollbar = new Rollbar({
+  accessToken: 'beb5eba4559545d9abba3f27b14dc86e',
+  captureUncaught: true,
+  captureUnhandledRejections: true,
+})
+
+// record a generic message and send it to Rollbar
+rollbar.log('Hello world!')
+
 // Add up the total health of all the robots
 const calculateTotalHealth = (robots) =>
   robots.reduce((total, { health }) => total + health, 0);
@@ -43,6 +54,7 @@ app.get("/api/robots", (req, res) => {
     res.status(200).send(botsArr);
   } catch (error) {
     console.error("ERROR GETTING BOTS", error);
+    rollbar.error('error getting bots')
     res.sendStatus(400);
   }
 });
@@ -53,6 +65,7 @@ app.get("/api/robots/shuffled", (req, res) => {
     res.status(200).send(shuffled);
   } catch (error) {
     console.error("ERROR GETTING SHUFFLED BOTS", error);
+    rollbar.warning('bots not shuffled')
     res.sendStatus(400);
   }
 });
@@ -76,6 +89,7 @@ app.post("/api/duel", (req, res) => {
     }
   } catch (error) {
     console.log("ERROR DUELING", error);
+    rollbar.error('error dueling')
     res.sendStatus(400);
   }
 });
@@ -85,6 +99,7 @@ app.get("/api/player", (req, res) => {
     res.status(200).send(playerRecord);
   } catch (error) {
     console.log("ERROR GETTING PLAYER STATS", error);
+    rollbar.critical('error getting player stats')
     res.sendStatus(400);
   }
 });
